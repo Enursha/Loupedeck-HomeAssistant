@@ -40,7 +40,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <OutputPath>..\..\..\..\AppData\Local\Loupedeck\Plugins\HA\win\</OutputPath>
+    <OutputPath>..\..\..\..\AppData\Local\Loupedeck\Plugins\HomeAssistant\win\</OutputPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -83,6 +83,7 @@
   <ItemGroup>
     <Compile Include="Adjustments\CoverAdjustment.cs" />
     <Compile Include="Adjustments\ClimateAdjustment.cs" />
+    <Compile Include="Adjustments\MediaPlayerVolumeAdjustment.cs" />
     <Compile Include="Adjustments\DimmerAdjustment.cs" />
     <Compile Include="Commands\ButtonCommand.cs" />
     <Compile Include="Commands\LockCommand.cs" />
