@@ -7,39 +7,65 @@
 
     using Newtonsoft.Json.Linq;
 
-    public class MediaPlayerVolumeAdjustment : PluginDynamicAdjustment
+    public class MediaPlayerVolumeAdjustment : ActionEditorAdjustment
     {
         private HaPlugin plugin;
 
-        public MediaPlayerVolumeAdjustment() : base(true)
+        public MediaPlayerVolumeAdjustment() : base(hasReset:false)
         {
-            this.GroupName = "Volume";
-            this.ResetDisplayName = "Mute";
-        }
+            this.Name = "MediaPlayerVolumeAdjustment";
+            this.GroupName = "Media Player";
+            this.DisplayName = "Volume Set";
+            this.Description = "Set the volume of a media player";
 
+            this.ActionEditor.AddControlEx(
+                new ActionEditorTextbox("label", "Button Label")
+                .SetPlaceholder("Label on icon image")
+            );
+            this.ActionEditor.AddControlEx(
+                new ActionEditorListbox(name: "media_player", labelText: "Media Player", description: "Select the media player").SetRequired()
+            );
+            this.ActionEditor.ListboxItemsRequested += this.OnActionEditorListboxItemsRequested;
+            this.ActionEditor.ControlValueChanged += this.OnActionEditorControlValueChanged;
+        }
         protected override Boolean OnLoad()
         {
             this.plugin = base.Plugin as HaPlugin;
 
             this.plugin.StatesReady += (sender, e) =>
             {
-                PluginLog.Verbose($"{this.GroupName}Command.OnLoad() => StatesReady");
-
-                foreach (KeyValuePair<String, Json.HaState> group in this.plugin.States)
-                {
-                    var state = group.Value;
-                    if (this.IsVolume(state))
-                    {
-                        this.AddParameter(state.Entity_Id, state.FriendlyName, "Volume");
-                    }
-                }
-
-                PluginLog.Info($"[group: {this.GroupName}] [count: {this.GetParameters().Length}]");
+                PluginLog.Verbose($"{this.GroupName}Adjustment.OnLoad() => StatesReady");
             };
-
-            this.plugin.StateChanged += (sender, e) => this.ActionImageChanged(e.Entity_Id);
-
             return true;
+        }
+
+        private void OnActionEditorControlValueChanged(Object sender, ActionEditorControlValueChangedEventArgs e)
+        {
+            if (e.ControlName.EqualsNoCase("media_player"))
+            {
+                this.ActionEditor.ListboxItemsChanged("media_player");
+            }
+        }
+
+        private void OnActionEditorListboxItemsRequested(Object sender, ActionEditorListboxItemsRequestedEventArgs e)
+        {
+            this.plugin = base.Plugin as HaPlugin;
+
+            if (e.ControlName.EqualsNoCase("media_player"))
+            {
+                    foreach (KeyValuePair<String, Json.HaState> group in this.plugin.States)
+                    {
+                        var state = group.Value;
+                        if (this.IsVolume(state))
+                        {
+                            e.AddItem(state.Entity_Id, state.FriendlyName, null);
+                        }
+                    }
+            }
+            else
+            {
+                this.Plugin.Log.Error($"Unexpected control name '{e.ControlName}'");
+            }
         }
 
         public const Int32 SUPPORT_VOLUME_SET = 4;
@@ -54,41 +80,17 @@
 
         private Boolean IsFeatureSupported(Int32 entityState, Int32 feature) => (entityState & feature) == feature;
 
-        protected override String GetCommandDisplayName(String actionParameter, PluginImageSize imageSize)
+
+        protected override Boolean ApplyAdjustment(ActionEditorActionParameters actionParameter, Int32 value)
         {
-            if (actionParameter.IsNullOrEmpty())
-            { return null; }
+            this.plugin = base.Plugin as HaPlugin;
 
-            var entityState = this.plugin.States[actionParameter];
-            return $"{entityState.FriendlyName}";
-        }
+            if (actionParameter == null)
+            { return false; }
 
-        protected override String GetAdjustmentDisplayName(String actionParameter, PluginImageSize imageSize)
-        {
-            if (actionParameter.IsNullOrEmpty())
-            { return null; }
+            var _mediaplayer = actionParameter.GetString("media_player");
 
-            var entityState = this.plugin.States[actionParameter];
-            return $"{entityState.FriendlyName}";
-        }
-
-        protected override String GetAdjustmentValue(String actionParameter)
-        {
-            if (actionParameter.IsNullOrEmpty())
-            { return null; }
-
-            var entityState = this.plugin.States[actionParameter];
-            Int32.TryParse(entityState?.Attributes["volume_level"]?.ToString(), out var entityValue);
-
-            return entityValue.ToString();
-        }
-
-        protected override void ApplyAdjustment(String entity_id, Int32 value)
-        {
-            if (entity_id.IsNullOrEmpty())
-            { return; }
-
-            var entityState = this.plugin.States[entity_id];
+            var entityState = this.plugin.States[_mediaplayer];
             Double.TryParse(entityState.Attributes["volume_level"]?.ToString(), out var entityValue);
 
             const Double stepSize = 0.01;
@@ -100,55 +102,30 @@
 
             var volume_level = volume_level_raw.ToString("0.00");
 
-            PluginLog.Verbose($"{entity_id} - {value} - {entityValue} => {volume_level}");
+            PluginLog.Verbose($"{_mediaplayer} - {value} - {entityValue} => {volume_level}");
 
-            this.plugin.States[entity_id].Attributes["volume_level"] = volume_level.ToString();
+            this.plugin.States[_mediaplayer].Attributes["volume_level"] = volume_level.ToString();
 
             var data = new JObject {
                 { "domain", "media_player" },
                 { "service", "volume_set" },
                 { "service_data", new JObject { { "volume_level", volume_level } } },
-                { "target", new JObject { { "entity_id", entity_id } } }
+                { "target", new JObject { { "entity_id", _mediaplayer } } }
             };
 
             this.plugin.CallService(data);
             this.AdjustmentValueChanged();
+            return true;
         }
 
-        private Boolean is_volume_muted = false;
-        
-        protected override void RunCommand(String entity_id)
+        protected override String GetAdjustmentDisplayName(ActionEditorActionParameters actionParameter)
         {
-            JObject data;
-            String plex_volume;
+            this.plugin = base.Plugin as HaPlugin;
+            var _mediaplayer = actionParameter.GetString("media_player");
 
-            // Home Assistant can't get the volume state from Plex, so muting is done by Home Assistant by setting volume to 0
-            // to unmute the default is to restore to the previous volume level, this can get out of sync if the volume is changed manually
-            // I'm setting it to half volume on unmute instead, it's not ideal but it's better than blasting the sound out at full volume.
-            if (entity_id.StartsWith("media_player.plex_plexamp"))
-            {
-                plex_volume = this.is_volume_muted ? "0.5" : "0";
-                data = new JObject {
-                            { "domain", "media_player" },
-                            { "service", "volume_set" },
-                            { "service_data", new JObject { { "volume_level", plex_volume } } },
-                            { "target", new JObject { { "entity_id", entity_id } } }
-                };
-                this.is_volume_muted = !Boolean.Parse(this.is_volume_muted.ToString());
-            }
-            else
-            {
-                this.is_volume_muted = !Boolean.Parse(this.plugin.States[entity_id].Attributes["is_volume_muted"].ToString());
-
-                data = new JObject {
-                        { "domain", "media_player" },
-                        { "service", "volume_mute" },
-                        { "service_data", new JObject { { "is_volume_muted", this.is_volume_muted } } },
-                        { "target", new JObject { { "entity_id", entity_id } } }
-                };
-            }
-            this.plugin.CallService(data);
-            this.AdjustmentValueChanged();
+            var entityState = this.plugin.States[_mediaplayer];
+            Double.TryParse(entityState.Attributes["volume_level"]?.ToString(), out var entityValue);
+            return $"{actionParameter.GetString("label")}\n{Convert.ToInt32(entityValue * 100)}";
         }
     }
 }
