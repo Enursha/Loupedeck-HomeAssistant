@@ -81,13 +81,22 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Adjustments\BaseMediaPlayerAdjustment.cs" />
     <Compile Include="Adjustments\CoverAdjustment.cs" />
     <Compile Include="Adjustments\ClimateAdjustment.cs" />
+    <Compile Include="Adjustments\MediaPlayerVolumeAdjustmentCopy.cs" />
     <Compile Include="Adjustments\MediaPlayerVolumeAdjustment.cs" />
     <Compile Include="Adjustments\DimmerAdjustment.cs" />
+    <Compile Include="Commands\BaseMediaPlayerCommand.cs" />
     <Compile Include="Commands\ButtonCommand.cs" />
     <Compile Include="Commands\LockCommand.cs" />
-    <Compile Include="Commands\MediaPlayerCommand.cs" />
+    <Compile Include="Commands\MediaPlayerMuteCommand.cs" />
+    <Compile Include="Commands\MediaPlayerNextTrackCommand.cs" />
+    <Compile Include="Commands\MediaPlayerPlayPauseCommand.cs" />
+    <Compile Include="Commands\MediaPlayerPreviousTrackCommand.cs" />
+    <Compile Include="Commands\MediaPlayerStopCommand.cs" />
+    <Compile Include="Commands\MediaPlayerVolumeDownCommand.cs" />
+    <Compile Include="Commands\MediaPlayerVolumeUpCommand.cs" />
     <Compile Include="Commands\SceneCommand.cs" />
     <Compile Include="Commands\BaseCommand.cs" />
     <Compile Include="Commands\AutomationCommand.cs" />
@@ -97,7 +106,9 @@
     <Compile Include="Commands\SwitchCommand.cs" />
     <Compile Include="Commands\LightCommand.cs" />
     <Compile Include="Events\StateChangedEventArgs.cs" />
+    <Compile Include="Extensions\BaseExtensionsMediaPlayer.cs" />
     <Compile Include="HaConfig.cs" />
+    <Compile Include="Helpers\MediaPlayerHelper.cs" />
     <Compile Include="Json\HaState.cs" />
     <Compile Include="Json\HaEvent.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

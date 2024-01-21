@@ -11,12 +11,12 @@
     {
         private HaPlugin plugin;
 
-        public MediaPlayerVolumeAdjustment() : base(hasReset:false)
+        public MediaPlayerVolumeAdjustment() : base(false)
         {
             this.Name = "MediaPlayerVolumeAdjustment";
-            this.GroupName = "Media Player";
             this.DisplayName = "Volume Set";
             this.Description = "Set the volume of a media player";
+            this.GroupName = "MediaPlayerGroup";
 
             this.ActionEditor.AddControlEx(
                 new ActionEditorTextbox("label", "Button Label")
@@ -34,7 +34,7 @@
 
             this.plugin.StatesReady += (sender, e) =>
             {
-                PluginLog.Verbose($"{this.GroupName}Adjustment.OnLoad() => StatesReady");
+                PluginLog.Verbose($"{this.GroupName} {this.Name} Adjustment.OnLoad() => StatesReady");
             };
             return true;
         }
@@ -69,7 +69,6 @@
         }
 
         public const Int32 SUPPORT_VOLUME_SET = 4;
-        //public const Int32 SUPPORT_VOLUME_MUTE = 8;
 
         private Boolean IsVolume(HaState state)
         {
