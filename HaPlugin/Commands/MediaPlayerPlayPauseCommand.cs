@@ -1,22 +1,21 @@
 ﻿namespace Loupedeck.HomeAssistant.Commands
 {
     using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
+
+    using Loupedeck;
 
     public class MediaPlayerPlayPauseCommand : BaseMediaPlayerCommand
     {
-        public MediaPlayerPlayPauseCommand() : base()
+        public MediaPlayerPlayPauseCommand() : base(
+            feature: BaseExtensionsMediaPlayer.PAUSE,
+            service: "media_play_pause",
+            isServiceDataRequired: false,
+            name: "MediaPlayerPlayPause",
+            displayName: "Play/Pause",
+            description: "Play or pause a media player",
+            groupName: "Media Player"
+            )
         {
-            this.feature = BaseMediaPlayerCommand.PAUSE;
-            this.service = "media_play_pause";
-            this.isServiceDataRequired = false;
-
-            this.Name = "MediaPlayerPlayPause";
-            this.DisplayName = "Play/Pause";
-            this.Description = "Play or pause a media player";
         }
     }
 }

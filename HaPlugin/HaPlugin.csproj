@@ -84,7 +84,7 @@
     <Compile Include="Adjustments\BaseMediaPlayerAdjustment.cs" />
     <Compile Include="Adjustments\CoverAdjustment.cs" />
     <Compile Include="Adjustments\ClimateAdjustment.cs" />
-    <Compile Include="Adjustments\MediaPlayerVolumeAdjustmentCopy.cs" />
+    <Compile Include="Adjustments\MediaPlayerSeekAdjustment.cs" />
     <Compile Include="Adjustments\MediaPlayerVolumeAdjustment.cs" />
     <Compile Include="Adjustments\DimmerAdjustment.cs" />
     <Compile Include="Commands\BaseMediaPlayerCommand.cs" />

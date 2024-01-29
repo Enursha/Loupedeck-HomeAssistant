@@ -1,16 +1,19 @@
 ﻿namespace Loupedeck.HomeAssistant.Commands
 {
+    using System;
+
     public class MediaPlayerPreviousTrackCommand : BaseMediaPlayerCommand
     {
-        public MediaPlayerPreviousTrackCommand() : base()
+        public MediaPlayerPreviousTrackCommand() : base(
+            feature: BaseExtensionsMediaPlayer.PREVIOUS_TRACK,
+            service: "media_previous_track",
+            isServiceDataRequired: false,
+            name: "MediaPlayerPreviousTrack",
+            displayName: "Previous Track",
+            description: "Play the previous track",
+            groupName: "Media Player"
+            )
         {
-            this.feature = BaseMediaPlayerCommand.PREVIOUS_TRACK;
-            this.service = "media_previous_track";
-            this.isServiceDataRequired = false;
-
-            this.Name = "MediaPlayerPreviousTrack";
-            this.DisplayName = "Previous Track";
-            this.Description = "Play the previous track";
         }
     }
 }

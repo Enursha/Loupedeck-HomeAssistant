@@ -1,16 +1,18 @@
 ﻿namespace Loupedeck.HomeAssistant.Commands
 {
+    using System;
     public class MediaPlayerStopCommand : BaseMediaPlayerCommand
     {
-        public MediaPlayerStopCommand() : base()
+        public MediaPlayerStopCommand() : base(
+            feature: BaseExtensionsMediaPlayer.VOLUME_MUTE,
+            service: "media_stop",
+            isServiceDataRequired: false,
+            name: "MediaPlayerStop",
+            displayName: "Stop",
+            description: "Stop a media player",
+            groupName: "Media Player"
+            )
         {
-            this.feature = BaseMediaPlayerCommand.STOP;
-            this.service = "media_stop";
-            this.isServiceDataRequired = false;
-
-            this.Name = "MediaPlayerStop";
-            this.DisplayName = "Stop";
-            this.Description = "Stop the media player";
         }
     }
 }

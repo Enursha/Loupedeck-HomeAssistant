@@ -1,16 +1,18 @@
 ﻿namespace Loupedeck.HomeAssistant.Commands
 {
+    using System;
     public class MediaPlayerVolumeUpCommand : BaseMediaPlayerCommand
     {
-        public MediaPlayerVolumeUpCommand() : base()
+        public MediaPlayerVolumeUpCommand() : base(
+            feature: BaseExtensionsMediaPlayer.VOLUME_STEP,
+            service: "volume_up",
+            isServiceDataRequired: false,
+            name: "MediaPlayer",
+            displayName: "Volume Up",
+            description: "Increase the volume of a media player",
+            groupName: "Media Player"
+            )
         {
-            this.feature = BaseMediaPlayerCommand.VOLUME_STEP;
-            this.service = "volume_up";
-            this.isServiceDataRequired = false;
-
-            this.Name = "MediaPlayer";
-            this.DisplayName = "Volume Up";
-            this.Description = "Increase the volume of a media player";
         }
     }
 }
